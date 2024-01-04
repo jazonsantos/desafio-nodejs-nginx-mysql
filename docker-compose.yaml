@@ -5,8 +5,9 @@ services:
   app:
     build: 
       context: node
-    container_name: app
-    #entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh
+      dockerfile: Dockerfile.prod
+    image: jazon/fullcycle:desafio-node-js-nginx-mysql_app  
+    container_name: app    
     networks: 
       - node-js-network
     volumes: 
@@ -21,6 +22,7 @@ services:
     build: 
       context: ./nginx
       dockerfile: Dockerfile.prod
+    image: jazon/fullcycle:desafio-node-js-nginx-mysql_nginx
     container_name: nginx
     networks: 
       - node-js-network
@@ -30,7 +32,7 @@ services:
       - db
 
   db:
-    image: mysql:5.7
+    image: mysql:5.7 
     command: --innodb-use-native-aio=0
     container_name: db
     restart: always
