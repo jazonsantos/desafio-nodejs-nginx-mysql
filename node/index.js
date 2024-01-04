@@ -9,27 +9,21 @@ const config = {
     database:'nodedb'
 };
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     gravarNome();
 
-    let mysql = require('mysql');
-    let connection = mysql.createConnection(config);
+    let people = await buscarNomes();
+    res.send(`<h1>Full Cycle Rocks!</h1><p>Names: ${people}</p>`);   
+});
 
-    let people = '';
-    connection.query('SELECT * FROM people', (error, results, fields) => {
-        connection.end()
-        
-        if (error) throw error;
-
-        people = results.map(result => result.name).join(', ');
-        res.send(`<h1>Full Cycle Rocks!</h1><p>Names: ${people}</p>`);
-      });
-    
-    
-    console.log('Nome encontrados no banco de dados : ', people);
-    
+// Rota para remover a lista de nomes do banco de dados
+app.get('/limparNomes', async (req, res) => {
+    removerNomes();    
+    let people = await buscarNomes();
+    res.send(`<h1>Full Cycle Rocks!</h1><p>Names: ${people}</p>`);
 });
   
+
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
 });
@@ -46,6 +40,18 @@ function gravarNome(){
     connection.end();    
 }
 
+function removerNomes(){
+    let mysql = require('mysql');
+    let connection = mysql.createConnection(config)
+
+    let sql = `DELETE FROM people`;
+    
+    connection.query(sql);
+    connection.end();    
+
+    console.log('Dados removidos da tabela');
+}
+
 function nomeAleatorio(){
     let faker = require('faker');    
     
@@ -57,4 +63,24 @@ function nomeAleatorio(){
     console.log('Nome escolhido: ', names[indiceAleatorio]);
     
     return names[indiceAleatorio];
+}
+
+function buscarNomes() {
+    return new Promise((resolve, reject) => {
+        let mysql = require('mysql');
+        let connection = mysql.createConnection(config);
+
+        connection.query('SELECT * FROM people', (error, results, fields) => {
+            connection.end();
+
+            if (error) {
+                console.error('Erro ao acessar o banco de dados: ', error);
+                reject(error);
+            } else {
+                let people = results.map(result => result.name).join(', ');
+                console.log('Nomes encontrados no banco de dados: ', people);
+                resolve(people);
+            }
+        });
+    });
 }
