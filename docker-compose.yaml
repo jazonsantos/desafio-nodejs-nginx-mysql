@@ -4,20 +4,20 @@ services:
 
   app:
     build: 
-      context: node
-      dockerfile: Dockerfile.prod
-    image: jazon/fullcycle:desafio-node-js-nginx-mysql_app  
-    container_name: app    
+      context: ./node
+      dockerfile: Dockerfile.prod    
+    container_name: app        
     networks: 
       - node-js-network
-    volumes: 
-      - ./node:/usr/src/app
     tty: true
+    volumes:
+      - ./node:/usr/src/app
+      - ./node/node_modules:/usr/src/app/node_modules
     ports: 
       - "3000:3000"
     depends_on: 
-       - db
-
+      - db
+      
   nginx:
     build: 
       context: ./nginx
@@ -32,17 +32,18 @@ services:
       - db
 
   db:
-    image: mysql:5.7 
-    command: --innodb-use-native-aio=0
+    image: mysql:5.7
     container_name: db
     restart: always
     tty: true
-    volumes: 
+    volumes:
       - ./mysql:/var/lib/mysql
-    environment: 
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
-    networks: 
+    command: --innodb-use-native-aio=0
+    networks:
       - node-js-network
 
 networks: 
