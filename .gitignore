@@ -1,8 +1,5 @@
 # Ignore log files
 *.log
 
-# Ignore node modules files
-node/node_modules/*
-
 # Ignore MySQL data files
 mysql/*

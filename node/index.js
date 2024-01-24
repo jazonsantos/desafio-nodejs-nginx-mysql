@@ -23,6 +23,9 @@ app.get('/limparNomes', async (req, res) => {
     res.send(`<h1>Full Cycle Rocks!</h1><p>Names: ${people}</p>`);
 });
   
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK' });
+});
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
